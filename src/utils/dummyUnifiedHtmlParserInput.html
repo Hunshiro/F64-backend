@@ -1,0 +1,40 @@
+<!--
+  Dummy HTML template for BOTH English + Hindi.
+  The parser is language-agnostic: it only extracts text from:
+  - .question-type
+  - .question-text
+  - .option[data-option=A-D] .option-text
+  - [data-answer] or .correct-answer
+  - .solution-text (explanation)
+  - optional <img src="...">
+-->
+
+<div class="mock-question" data-answer="A">
+  <div class="question-type">SAMPLE SUBJECT (English or Hindi)</div>
+
+  <div class="question-text">
+    Sample question statement goes here? (English or Hindi)
+  </div>
+
+  <div class="option" data-option="A">
+    <div class="option-text">Option A text</div>
+  </div>
+
+  <div class="option" data-option="B">
+    <div class="option-text">Option B text</div>
+  </div>
+
+  <div class="option" data-option="C">
+    <div class="option-text">Option C text</div>
+  </div>
+
+  <div class="option" data-option="D">
+    <div class="option-text">Option D text</div>
+  </div>
+
+  <div class="solution-text">Sample explanation goes here.</div>
+
+  <!-- optional image -->
+  <img src="https://example.com/sample.png" />
+</div>
+

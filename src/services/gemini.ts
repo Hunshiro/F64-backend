@@ -10,6 +10,12 @@ type AiQuestion = {
   explanation?: string;
 };
 
+type TranslatedQuestion = {
+  text: string;
+  options: string[];
+  explanation?: string;
+};
+
 type AiResponse = {
   questions: AiQuestion[];
 };
@@ -247,4 +253,65 @@ function recoverQuestions(raw: string): AiQuestion[] {
     }
   }
   return items;
+}
+
+export async function translateQuestionToHindi(question: {
+  text: string;
+  options: string[];
+  explanation?: string;
+}): Promise<TranslatedQuestion | null> {
+  if (!env.geminiApiKey) return null;
+
+  const model = await getValidGeminiModel();
+  if (!model) return null;
+
+  const prompt = [
+    "You are a professional translator specializing in exam questions.",
+    "Translate the following exam question and its options to Hindi.",
+    "Maintain technical terms and keep the meaning exact.",
+    "Return ONLY valid JSON with this schema: { text: string, options: string[], explanation?: string }",
+    "",
+    "Question to translate:",
+    `Text: ${question.text}`,
+    `Options: ${JSON.stringify(question.options)}`,
+    question.explanation ? `Explanation: ${question.explanation}` : "",
+    "",
+    "Return the JSON object only, no markdown formatting."
+  ].join("\n");
+
+  try {
+    const res = await fetch(`https://openrouter.ai/api/v1/chat/completions`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${env.geminiApiKey}`,
+        "HTTP-Referer": "https://testbook.com",
+      },
+      body: JSON.stringify({
+        model: model,
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.3,
+        max_tokens: 600,
+        response_format: { type: "json_object" }
+      })
+    });
+
+    const data = (await res.json().catch(() => ({}))) as any;
+    if (!res.ok) {
+      console.error("Translation error:", data?.error?.message || "Translation failed");
+      return null;
+    }
+
+    const text = data?.choices?.[0]?.message?.content || "";
+    const jsonText = extractJson(text);
+    const translated = JSON.parse(jsonText) as TranslatedQuestion;
+    
+    if (translated && translated.text && Array.isArray(translated.options)) {
+      return translated;
+    }
+    return null;
+  } catch (err: any) {
+    console.error("Translation request failed:", err?.message || err);
+    return null;
+  }
 }

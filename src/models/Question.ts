@@ -6,6 +6,7 @@ export interface QuestionDoc {
   visualPdfUrl?: string;
   visualPageNumber?: number;
   visualNote?: string;
+  imageUrl?: string;
   text: string;
   options: string[];
   correctOptions: number[];
@@ -13,6 +14,8 @@ export interface QuestionDoc {
   marks: number;
   negativeMarks: number;
   explanation?: string;
+  language?: "en" | "hi";
+  translatedFromQuestionId?: Types.ObjectId;
 }
 
 const questionSchema = new Schema<QuestionDoc>(
@@ -22,13 +25,16 @@ const questionSchema = new Schema<QuestionDoc>(
     visualPdfUrl: { type: String, default: "" },
     visualPageNumber: { type: Number },
     visualNote: { type: String, default: "" },
+    imageUrl: { type: String, default: "" },
     text: { type: String, required: true },
     options: [{ type: String, required: true }],
     correctOptions: [{ type: Number, required: true }],
     type: { type: String, enum: ["single", "multi"], default: "single" },
     marks: { type: Number, default: 1 },
     negativeMarks: { type: Number, default: 0 },
-    explanation: { type: String, default: "" }
+    explanation: { type: String, default: "" },
+    language: { type: String, enum: ["en", "hi"], default: "en" },
+    translatedFromQuestionId: { type: Schema.Types.ObjectId, ref: "Question", sparse: true }
   },
   { timestamps: true }
 );

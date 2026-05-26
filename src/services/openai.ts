@@ -17,6 +17,12 @@ type AiResponse = {
   questions: AiQuestion[];
 };
 
+type TranslatedQuestion = {
+  text: string;
+  options: string[];
+  explanation?: string;
+};
+
 export async function generateQuestionsWithOpenAI(input: {
   instructions: string;
   sourceText: string;
@@ -234,4 +240,74 @@ export async function generateInstructionsWithOpenAI(input: {
   const data = (await res.json().catch(() => ({}))) as any;
   if (!res.ok) return "";
   return String(data?.output?.[0]?.content?.[0]?.text || "").trim();
+}
+
+export async function translateQuestionToHindi(question: {
+  text: string;
+  options: string[];
+  explanation?: string;
+}): Promise<TranslatedQuestion | null> {
+  if (!env.openaiApiKey) return null;
+
+  const prompt = [
+    "You are a professional translator specializing in exam questions.",
+    "Translate the following exam question and its options to Hindi.",
+    "Maintain technical terms and keep the meaning exact.",
+    "Return ONLY valid JSON with this schema: { text: string, options: string[], explanation?: string }",
+    "",
+    "Question to translate:",
+    `Text: ${question.text}`,
+    `Options: ${JSON.stringify(question.options)}`,
+    question.explanation ? `Explanation: ${question.explanation}` : "",
+    "",
+    "Return the JSON object only, no markdown formatting."
+  ].join("\n");
+
+  try {
+    const res = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${env.openaiApiKey}`
+      },
+      body: JSON.stringify({
+        model: env.openaiModel,
+        input: prompt,
+        text: {
+          format: {
+            type: "json_schema",
+            name: "question_translation",
+            strict: true,
+            schema: {
+              type: "object",
+              properties: {
+                text: { type: "string" },
+                options: { type: "array", items: { type: "string" } },
+                explanation: { type: "string" }
+              },
+              required: ["text", "options"],
+              additionalProperties: false
+            }
+          }
+        }
+      })
+    });
+
+    const data = (await res.json().catch(() => ({}))) as any;
+    if (!res.ok) {
+      console.error("OpenAI translation error:", data?.error?.message || "Translation failed");
+      return null;
+    }
+
+    const jsonText = data?.output_text || data?.output?.[0]?.content?.[0]?.text || "";
+    const translated = JSON.parse(jsonText) as TranslatedQuestion;
+    
+    if (translated && translated.text && Array.isArray(translated.options)) {
+      return translated;
+    }
+    return null;
+  } catch (err: any) {
+    console.error("OpenAI translation request failed:", err?.message || err);
+    return null;
+  }
 }

@@ -14,6 +14,8 @@ export interface QuizDoc {
   questions: Types.ObjectId[];
   randomizeQuestions: boolean;
   showAnswersAfterSubmit: boolean;
+  language: "en" | "hi";
+  translatedFromQuizId?: Types.ObjectId;
 }
 
 const quizSchema = new Schema<QuizDoc>(
@@ -30,7 +32,9 @@ const quizSchema = new Schema<QuizDoc>(
     status: { type: String, enum: ["draft", "published"], default: "draft" },
     questions: [{ type: Schema.Types.ObjectId, ref: "Question" }],
     randomizeQuestions: { type: Boolean, default: false },
-    showAnswersAfterSubmit: { type: Boolean, default: true }
+    showAnswersAfterSubmit: { type: Boolean, default: true },
+    language: { type: String, enum: ["en", "hi"], default: "en" },
+    translatedFromQuizId: { type: Schema.Types.ObjectId, ref: "Quiz", sparse: true }
   },
   { timestamps: true }
 );

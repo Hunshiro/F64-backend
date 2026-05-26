@@ -14,6 +14,10 @@ import attemptRoutes from "./routes/attempts";
 import analyticsRoutes from "./routes/analytics";
 import uploadRoutes from "./routes/uploads";
 import aiRoutes from "./routes/ai";
+import attemptAnalyticsRoutes from "./routes/attemptAnalytics";
+import leaderboardRoutes from "./routes/leaderboard";
+
+
 
 const app = express();
 
@@ -43,8 +47,12 @@ app.use("/api/quizzes", quizRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/attempts", attemptRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/attempts", attemptAnalyticsRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
 app.use("/api/uploads", uploadRoutes);
 app.use("/api/ai", aiRoutes);
+
+
 
 app.use(notFoundHandler);
 app.use(errorHandler);

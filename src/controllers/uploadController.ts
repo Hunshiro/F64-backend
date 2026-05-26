@@ -8,6 +8,17 @@ export async function uploadImage(req: Request, res: Response) {
   const base64 = file.buffer.toString("base64");
   const dataUri = `data:${file.mimetype};base64,${base64}`;
 
-  const result = await cloudinary.uploader.upload(dataUri, { folder: "testbook" });
-  return res.json({ url: result.secure_url, publicId: result.public_id });
+  try {
+    const result = await cloudinary.uploader.upload(dataUri, { folder: "testbook" });
+    return res.json({ url: result.secure_url, publicId: result.public_id });
+  } catch (err: any) {
+    console.error("[uploadImage] Cloudinary upload failed:", {
+      message: err?.message,
+      name: err?.name,
+      status: err?.http_code,
+      raw: err
+    });
+    return res.status(500).json({ message: err?.message || "Cloudinary upload failed" });
+  }
+
 }

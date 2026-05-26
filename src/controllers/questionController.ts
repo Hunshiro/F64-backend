@@ -15,7 +15,8 @@ export async function createQuestion(req: Request, res: Response) {
 
 export async function updateQuestion(req: Request, res: Response) {
   const { id } = req.params;
-  const { text, options, correctOptions, explanation, visualPdfUrl, visualPageNumber, visualNote, type, marks, negativeMarks } = req.body;
+  const { text, options, correctOptions, explanation, visualPdfUrl, visualPageNumber, visualNote, imageUrl, type, marks, negativeMarks } = req.body;
+  
   
   const updateData: any = {};
   if (text !== undefined) updateData.text = text;
@@ -25,7 +26,9 @@ export async function updateQuestion(req: Request, res: Response) {
   if (visualPdfUrl !== undefined) updateData.visualPdfUrl = visualPdfUrl;
   if (visualPageNumber !== undefined) updateData.visualPageNumber = visualPageNumber;
   if (visualNote !== undefined) updateData.visualNote = visualNote;
+  if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
   if (type !== undefined) updateData.type = type;
+
   if (marks !== undefined) updateData.marks = marks;
   if (negativeMarks !== undefined) updateData.negativeMarks = negativeMarks;
   
