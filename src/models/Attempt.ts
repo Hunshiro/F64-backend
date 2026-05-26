@@ -9,10 +9,17 @@ export interface AttemptDoc {
   userId: Types.ObjectId;
   quizId: Types.ObjectId;
   answers: AttemptAnswer[];
+
   startedAt: Date;
+
+  // Either field may exist depending on how attempts were created.
+  // Our model uses `timestamps: true` which also provides `createdAt`.
   submittedAt?: Date;
+  createdAt?: Date;
+
   status: "in_progress" | "submitted";
 }
+
 
 const attemptSchema = new Schema<AttemptDoc>(
   {
